@@ -1,7 +1,7 @@
-const pool = new Pool({
-  user: 'myuser', 
+const pool = new pool({
+  user: 'postgres', 
   host: 'localhost',
-  database: 'Card-Game-db',
+  database: 'PERN Card Game',
   password: 'user', 
   port: 5432,
 }); 
@@ -12,4 +12,5 @@ pool.query('SELECT NOW()', (err, res) => {
   } else {
     console.log('Database connected! Time:', res.rows[0].now);
   }
-});
+});  
+
