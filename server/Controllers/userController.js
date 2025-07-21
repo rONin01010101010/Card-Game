@@ -30,7 +30,7 @@ exports. CreateUser = async(req, res) => {
 
 exports.ReadUser = async(req, res) => {
     const {Id} = req.query; 
-    const user = await new User.findByPk(User.Id) 
+    const user = await new User.findByPk(Id) 
    
     try{
     //could have used where clause instead of this if statement 
@@ -90,6 +90,52 @@ exports.deleteUser = async(req,res) => {
   }catch(error){
 
   }
+ } 
  
+ exports.getAllUsers = async(req,res) => {
+    
+    //findAll()
+    try{
+    const {
+    page = 1 ,
+    limit = 10,
+    search
+    } = req.query;
+  
+   const offset = (page - 1) * limit 
+   const where = {} 
 
-} 
+   if(search) {
+    where[Op.or] = [
+        {name: {[Op.iLike]: `%{search}%`}} ,
+        {email: {[Op.iLike]: `%{search}%`}}
+    ]
+   }
+
+   offset.where = where; 
+
+   const {rows, count} = await User.findAndCountAll(offset)
+   
+     res.json({
+      success: true,
+      data: {
+        users: rows,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(count / limit),
+          totalRecords: count,
+          recordsPerPage: parseInt(limit)
+        },
+        appliedFilters: {
+          search: search || null,
+          status: status || null,
+          sortBy,
+          sortOrder
+        }
+      }
+    });
+
+    }catch(error){
+    res.status(500).json({ error: error.message });
+}
+ }

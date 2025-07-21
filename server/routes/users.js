@@ -5,9 +5,10 @@ const { default: users } = require('../../models/users');
 
 //get,post,put,delete
 
-router.put("/create", UserController.CreateUser) 
-router. post("/Profile" , UserController.ReadUser)
-router.delete("/delete" , UserController.deleteUser)
-router.put("/update", UserController.updateUser)    
+router.put("/", UserController.CreateUser) 
+router. post("/:id" , UserController.ReadUser)
+router.delete("/:id" , UserController.deleteUser)
+router.put("/:id", UserController.updateUser)   
+router.get('/' , UserController.getAllUsers) 
 
 
