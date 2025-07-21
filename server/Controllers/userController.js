@@ -1,86 +1,95 @@
 const {QueryTypes} = require('sequelize')
 const { sequelize } = require('../../models');
-const { User } = require('../../models/User')
+const { User } = require('../../models/users')
 const { validationResult } = require('express-validator') //cleans and sanitizes data given by the user 
 
 
 exports. CreateUser = async(req, res) => {
-   
-   const name = req.query.name;
-    const email = req.query.email;
-    try {
-    // const name = req.query.name;
-    // const email = req.query.email;
-   const User = await Create ({
-    attributes: [name, email]
-   })
-   
-   res.status(200).json({
-    "name" : name , 
-    "email" : email , 
-    "score" : 0 
+    const email = req.body.email;
+    const name = req.body.name;
+    try{ 
     
-   }) 
-   }catch(error){
-    if(await findOne({
-        where : {
-          attributes: ['email']  
+        if(validationResult.body(email).isEmail() == false) {
+        res.status(400).json({error: "Email format is not valid"});
         }
-    }) == email) {
-    res.status(409)
+ 
+    const user = await new User.Create({
+        name: name , 
+        email: email,
+        where: {
+        name: null, 
+        email: null
+        }
+    })
+      res.status(200).json({message: "User created successfully", data: user}); 
+    
+    }catch(error){
+      res.json({'Failed to create user' : error})
     }
- res.status(error)    
-}
 }  
-exports.ReadUser = async(req, res) => {
-   
-   const {Id, name, email} = req.body //edit to either query or params after making user routes 
-   
-    try { 
-     const Profile = await findOne({
-     attributes: ['name','email','game','id'],
-     where : {
-     'id' : Id
-    }
-    })
-    res.status(200).json({
-    "name": name, 
-    "email" : email
-    })
 
-   }catch(error){
-    res.status(500)
-   }
+exports.ReadUser = async(req, res) => {
+    const {Id} = req.query; 
+    const user = await new User.findByPk(User.Id) 
+   
+    try{
+    //could have used where clause instead of this if statement 
+    if(user == null || user.isLoggedin == false) {
+        res.json({error: "User doesn't exist or is not logged in"}) 
+    } 
+    
+    res.status(200).json(user); 
+}catch(error){
+    res.json({"User not found": error})
+}
 } 
 
 exports.updateUser = async(req, res) => {
+   
+    const {Id,email,name} = req.body; 
+     
+    //association between game and user 
+    //to update score based on if user has won game or not 
+    //check if user is in an active game 
+    //then check if the user has finished cards first 
+    //all this to be done in the game controller 
+     try {
+   
+        if(validationResult.body(email).isEmail() == false) {
+        res.status(400).json({error: "Email format is not valid"});
+        }
+   
+         const user = await new User.update(
+        {
+            name:name,
+            email:email
+        }, 
+        {where : {id: Id} //include user id in routing for users 
+        })
 
-const {email, name} = req.query; 
-    try {
-    const updatedUser = await update({
-        attributes: ['name', 'email']
-    })  
-  
-res.status(200).json({
-    "name": name, 
-    "email" : email
-    })
+      res.status(200).json(user)
+    }catch(error){
+      res.json({"Failed to update user": error})
+    }
+}
 
-}catch(error){
-res.status("User not updated",error)
-}
-}
 exports.deleteUser = async(req,res) => {
-const {email, name, Id } = req.body 
+  
+  const { id } = req.body 
+  
+  try{ 
+   
+   const User = new User; 
+   
+   await User.destroy({
+    where: {Id : id} //where the user id is the id in the req body 
+   })
+   
+   res.status(200).json({message: "User successfully deleted"})
 
-try { 
-    const user = await destroy({
-        attributes: ["email", "user"]
-    })
+  }catch(error){
 
-res.status(200)
-}
-catch(error){
-res.status("Operation not complete" , error)
-}
-}
+  }
+ 
+
+} 

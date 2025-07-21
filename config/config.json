@@ -7,16 +7,16 @@
     "dialect": "postgres"
   },
   "test": {
-    "username": "postgres",
-    "password": "user",
-    "database": "PERN Card Game",
+    "username": "root",
+    "password": "null",
+    "database": "database",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
-    "username": "postgres",
-    "password": "user",
-    "database": "PERN Card Game",
+   "username": "root",
+    "password": "null",
+    "database": "database",
     "host": "127.0.0.1",
     "dialect": "postgres"
   }
